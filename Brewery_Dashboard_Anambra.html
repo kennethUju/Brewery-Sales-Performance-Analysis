@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Brewery Sales Performance Dashboard — Anambra State</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #EDF1F7;
+    --surface:   #FFFFFF;
+    --header-bg: #243B55;
+    --header-2:  #1A2E44;
+    --blue:      #4A7FA5;
+    --blue-lt:   #6FA3C5;
+    --sage:      #6EA07A;
+    --sage-lt:   #92BF9E;
+    --warm:      #C9876A;
+    --warm-lt:   #E0AA8F;
+    --rose:      #A8708A;
+    --slate:     #7A90A8;
+    --text:      #1C2B3A;
+    --text-mid:  #4A5D6E;
+    --text-lt:   #8A9BB0;
+    --border:    #DDE4EE;
+    --kpi-1:     #4A7FA5;
+    --kpi-2:     #6EA07A;
+    --kpi-3:     #5E8FA8;
+    --kpi-4:     #A8708A;
+    --kpi-5:     #C0735A;
+  }
+
+  html, body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── PAGE WRAPPER ─── */
+  .page {
+    width: 1440px;
+    min-width: 1440px;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: linear-gradient(135deg, var(--header-bg) 0%, var(--header-2) 100%);
+    padding: 22px 36px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .header-left {}
+  .header-eyebrow {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--blue-lt);
+    margin-bottom: 4px;
+  }
+  .header-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .header-title span {
+    color: var(--blue-lt);
+  }
+  .header-sub {
+    font-size: 11.5px;
+    color: #A8C0D8;
+    margin-top: 5px;
+    font-weight: 300;
+  }
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    text-align: right;
+  }
+  .meta-block {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .meta-label { font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em; color: #7A9BB8; }
+  .meta-value { font-family: 'DM Mono', monospace; font-size: 14px; color: #C8DFF0; font-weight: 500; }
+  .header-badge {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 10.5px;
+    color: #A8C0D8;
+    white-space: nowrap;
+  }
+  .header-badge strong { color: #D8EBF8; display: block; font-size: 11.5px; margin-bottom: 1px; }
+
+  /* ─── KPI STRIP ─── */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    border-bottom: 3px solid var(--bg);
+  }
+  .kpi {
+    padding: 14px 20px 12px;
+    position: relative;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .kpi:last-child { border-right: none; }
+  .kpi::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .kpi:nth-child(1)::before { background: var(--kpi-1); }
+  .kpi:nth-child(2)::before { background: var(--kpi-2); }
+  .kpi:nth-child(3)::before { background: var(--kpi-3); }
+  .kpi:nth-child(4)::before { background: var(--kpi-4); }
+  .kpi:nth-child(5)::before { background: var(--kpi-5); }
+  .kpi-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-lt);
+  }
+  .kpi-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .kpi:nth-child(1) .kpi-value { color: var(--kpi-1); }
+  .kpi:nth-child(2) .kpi-value { color: var(--kpi-2); }
+  .kpi:nth-child(3) .kpi-value { color: var(--kpi-3); }
+  .kpi:nth-child(4) .kpi-value { color: var(--kpi-4); }
+  .kpi:nth-child(5) .kpi-value { color: var(--kpi-5); }
+  .kpi-sub {
+    font-size: 10.5px;
+    color: var(--text-mid);
+    margin-top: 1px;
+  }
+
+  /* ─── BODY ─── */
+  .body {
+    padding: 18px 20px 16px;
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 16px;
+  }
+
+  /* ─── ROW 1 ─── */
+  .row-1 {
+    display: grid;
+    grid-template-columns: 2.4fr 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  /* ─── ROW 2 ─── */
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1.1fr 1.5fr 1.4fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  /* ─── CARD ─── */
+  .card {
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 16px 18px 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 4px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.03);
+  }
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .card-story {
+    font-size: 11px;
+    color: var(--text-mid);
+    margin-top: 2px;
+    font-weight: 300;
+    font-style: italic;
+    max-width: 360px;
+  }
+  .card-tag {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 2px 7px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .tag-blue   { background: #EAF3FA; color: var(--blue); }
+  .tag-sage   { background: #EAF4ED; color: #4E8A5C; }
+  .tag-warm   { background: #FAF0EB; color: #A8603E; }
+  .tag-rose   { background: #F6EDF3; color: #7A4D69; }
+  .tag-slate  { background: #EEF2F7; color: #4A6580; }
+
+  /* ─── CHART CONTAINERS ─── */
+  .chart-wrap { position: relative; }
+  canvas { display: block; }
+
+  /* ─── DONUT STAT OVERLAY ─── */
+  .donut-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+  .donut-center {
+    position: absolute;
+    text-align: center;
+    pointer-events: none;
+  }
+  .donut-center-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+  }
+  .donut-center-label {
+    font-size: 9px;
+    color: var(--text-lt);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-top: 3px;
+  }
+
+  /* ─── CUSTOM LEGEND ─── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-top: 10px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    color: var(--text-mid);
+  }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ─── INSIGHT CALLOUT ─── */
+  .insight {
+    border-left: 3px solid var(--blue);
+    padding: 8px 10px;
+    background: #F3F7FB;
+    border-radius: 0 6px 6px 0;
+    margin-top: 10px;
+    font-size: 10.5px;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+  .insight strong { color: var(--blue); font-weight: 600; }
+
+  .insight-sage {
+    border-left-color: var(--sage);
+    background: #F2F8F4;
+  }
+  .insight-sage strong { color: #4E8A5C; }
+
+  .insight-warm {
+    border-left-color: var(--warm);
+    background: #FBF4F0;
+  }
+  .insight-warm strong { color: #A8603E; }
+
+  /* ─── NARRATIVE SPINE (left column of row2) ─── */
+  .story-card {
+    background: linear-gradient(160deg, #243B55 0%, #1A2E44 100%);
+    border: none;
+    color: #C8DFF0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: space-between;
+  }
+  .story-eyebrow {
+    font-size: 9.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--blue-lt);
+    margin-bottom: 8px;
+  }
+  .story-headline {
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .story-body {
+    font-size: 10.5px;
+    color: #A8C0D8;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  .story-divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,.1);
+  }
+  .stat-row {
+    display: flex;
+    gap: 0;
+  }
+  .stat-item {
+    flex: 1;
+    padding: 10px 0;
+    border-right: 1px solid rgba(255,255,255,.1);
+    padding-right: 14px;
+    margin-right: 14px;
+  }
+  .stat-item:last-child { border-right: none; padding-right: 0; margin-right: 0; }
+  .stat-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 20px;
+    font-weight: 500;
+    color: #D8EBF8;
+    line-height: 1;
+  }
+  .stat-lbl {
+    font-size: 9px;
+    color: #7A9BB8;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-top: 3px;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 10px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-left {
+    font-size: 10px;
+    color: var(--text-lt);
+  }
+  .footer-left strong { color: var(--text-mid); }
+  .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .footer-badge {
+    font-size: 9.5px;
+    color: var(--text-lt);
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header">
+    <div class="header-left">
+      <div class="header-eyebrow">Data Analytics Capstone Project &nbsp;·&nbsp; LMTech &nbsp;·&nbsp; Microsoft Power BI</div>
+      <div class="header-title">Brewery Sales Performance Analysis &nbsp;<span>·</span>&nbsp; Anambra State</div>
+      <div class="header-sub">Retail Outlet Survey &nbsp;|&nbsp; 525 Respondents &nbsp;|&nbsp; Awka &nbsp;·&nbsp; Onitsha &nbsp;·&nbsp; Nnewi &nbsp;·&nbsp; Umunze</div>
+    </div>
+    <div class="header-meta">
+      <div class="meta-block">
+        <div class="meta-label">Survey Period</div>
+        <div class="meta-value">May – Jun 2026</div>
+      </div>
+      <div class="meta-block">
+        <div class="meta-label">Locations</div>
+        <div class="meta-value">4 LGAs</div>
+      </div>
+      <div class="meta-block">
+        <div class="meta-label">Brands Covered</div>
+        <div class="meta-value">3</div>
+      </div>
+      <div class="header-badge">
+        <strong>Presented by Kenneth Uju</strong>
+        Data Analyst &nbsp;·&nbsp; LMTech Programme
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ KPI STRIP ═══ -->
+  <div class="kpi-strip">
+    <div class="kpi">
+      <div class="kpi-label">Total Outlets Surveyed</div>
+      <div class="kpi-value">525</div>
+      <div class="kpi-sub">Across 4 Local Government Areas</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Avg. Sales Rating</div>
+      <div class="kpi-value">3.9<span style="font-size:14px;color:#8A9BB0"> / 5.0</span></div>
+      <div class="kpi-sub">Moderately positive across all types</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Top Location</div>
+      <div class="kpi-value" style="font-size:20px;margin-top:3px">Awka</div>
+      <div class="kpi-sub">165 outlets &nbsp;·&nbsp; 31.4% of sample</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Top Challenge</div>
+      <div class="kpi-value" style="font-size:15px;margin-top:5px;line-height:1.2">High Product<br>Cost</div>
+      <div class="kpi-sub">Cited by 72% of outlets</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Reported Sales Decline</div>
+      <div class="kpi-value">95<span style="font-size:18px">%</span></div>
+      <div class="kpi-sub">500 of 525 outlets affected</div>
+    </div>
+  </div>
+
+  <!-- ═══ BODY ═══ -->
+  <div class="body">
+
+    <!-- ── ROW 1 ── -->
+    <div class="row-1">
+
+      <!-- Brand Dominance by Location -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Brand Sales Dominance by Location</div>
+            <div class="card-story">International Breweries leads in every city — most commanding in Awka with 94 outlets</div>
+          </div>
+          <span class="card-tag tag-blue">Brand Leaders</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chartBrandLocation" height="130"></canvas>
+        </div>
+        <div class="legend" style="margin-top:10px">
+          <div class="legend-item"><div class="legend-dot" style="background:#4A7FA5"></div>International Breweries</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#6EA07A"></div>Nigerian Breweries</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#C9876A"></div>Guinness Nigeria</div>
+        </div>
+      </div>
+
+      <!-- Market Share Donut -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Brand Market Share</div>
+            <div class="card-story">Share of 525 retail outlets</div>
+          </div>
+          <span class="card-tag tag-blue">54.9% Leader</span>
+        </div>
+        <div class="donut-wrap">
+          <canvas id="chartMarketShare" height="160" width="220"></canvas>
+          <div class="donut-center">
+            <div class="donut-center-value">525</div>
+            <div class="donut-center-label">Outlets</div>
+          </div>
+        </div>
+        <div class="legend" style="margin-top:8px;flex-direction:column;gap:6px">
+          <div class="legend-item"><div class="legend-dot" style="background:#4A7FA5"></div>Int'l Breweries &nbsp;<strong style="color:#4A7FA5">54.9%</strong></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#6EA07A"></div>Nigerian Breweries &nbsp;<strong style="color:#6EA07A">30.5%</strong></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#C9876A"></div>Guinness Nigeria &nbsp;<strong style="color:#C9876A">14.7%</strong></div>
+        </div>
+      </div>
+
+      <!-- Outlet Type Distribution -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Outlet Type Distribution</div>
+            <div class="card-story">On-trade venues dominate the channel</div>
+          </div>
+          <span class="card-tag tag-sage">Channel Mix</span>
+        </div>
+        <div class="donut-wrap">
+          <canvas id="chartOutletType" height="160" width="220"></canvas>
+          <div class="donut-center">
+            <div class="donut-center-value">6</div>
+            <div class="donut-center-label">Types</div>
+          </div>
+        </div>
+        <div class="legend" style="margin-top:8px;flex-direction:column;gap:5px">
+          <div class="legend-item"><div class="legend-dot" style="background:#6EA07A"></div>Bar / Restaurant &nbsp;<strong style="color:#4E8A5C">35.8%</strong></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#92BF9E"></div>Supermarket &nbsp;<strong style="color:#4E8A5C">23.4%</strong></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#5E8FA8"></div>Provision Store &nbsp;<strong style="color:#4A6580">15.2%</strong></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#A8708A"></div>Hotel &nbsp;<strong style="color:#7A4D69">13.5%</strong></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#C9876A"></div>Mini Mart + Others &nbsp;<strong style="color:#A8603E">12.0%</strong></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── ROW 2 ── -->
+    <div class="row-2">
+
+      <!-- Story Card -->
+      <div class="card story-card">
+        <div>
+          <div class="story-eyebrow">Dashboard Narrative</div>
+          <div class="story-headline">A market with real strength — pressured, but not broken</div>
+          <div class="story-body">
+            Despite 95% of outlets reporting a sales decline, average performance ratings remain at a solid 3.9/5.0. International Breweries commands 55% of the retail landscape. The core threats are structural: economic inflation and high product costs — not demand collapse.
+          </div>
+        </div>
+        <hr class="story-divider"/>
+        <div class="stat-row">
+          <div class="stat-item">
+            <div class="stat-num">88%</div>
+            <div class="stat-lbl">Promo effectiveness</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">85%</div>
+            <div class="stat-lbl">Peak: Xmas/New Yr</div>
+          </div>
+        </div>
+        <hr class="story-divider"/>
+        <div class="stat-row">
+          <div class="stat-item">
+            <div class="stat-num">61%</div>
+            <div class="stat-lbl">Price = top driver</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">73%</div>
+            <div class="stat-lbl">Econ. downturn cause</div>
+          </div>
+        </div>
+        <div style="font-size:9.5px;color:#506880;margin-top:8px;font-style:italic;">
+          Promotions, tiered pricing, and restocking discipline offer the clearest path to recovery.
+        </div>
+      </div>
+
+      <!-- Sales Decline Causes -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Causes of Sales Decline</div>
+            <div class="card-story">Economic downturns cited by nearly 3 in 4 outlets</div>
+          </div>
+          <span class="card-tag tag-warm">Root Causes</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chartDeclineCauses" height="160"></canvas>
+        </div>
+        <div class="insight insight-warm" style="margin-top:10px">
+          <strong>Key finding:</strong> Economic downturns (72.8%) and high prices (40.8%) co-occur — inflation is simultaneously driving up costs and eroding consumer purchasing power.
+        </div>
+      </div>
+
+      <!-- Peak Season + Avg Rating -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <!-- Peak Sales Season -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Peak Sales Season</div>
+              <div class="card-story">Demand heavily concentrated in one window</div>
+            </div>
+            <span class="card-tag tag-slate">Seasonality</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div class="donut-wrap" style="flex-shrink:0">
+              <canvas id="chartSeason" height="120" width="140"></canvas>
+              <div class="donut-center">
+                <div class="donut-center-value" style="font-size:16px">85%</div>
+                <div class="donut-center-label">Xmas</div>
+              </div>
+            </div>
+            <div class="legend" style="flex-direction:column;gap:6px">
+              <div class="legend-item"><div class="legend-dot" style="background:#4A7FA5"></div>Christmas / New Year &nbsp;<strong style="color:#4A7FA5">85.3%</strong></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#8AA8C2"></div>No Variation &nbsp;<strong style="color:#6A8BA8">9.3%</strong></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#A8708A"></div>Easter Period &nbsp;<strong style="color:#7A4D69">5.0%</strong></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#C0D4E0"></div>Rainy Season &nbsp;<strong style="color:#6A8BA8">0.4%</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Avg Rating by Outlet -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Avg. Sales Rating by Outlet Type</div>
+              <div class="card-story">Hotels outperform; provision stores lag</div>
+            </div>
+            <span class="card-tag tag-sage">Performance</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartRating" height="110"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="footer-left">
+      <strong>Brewery Sales Performance Analysis · Anambra State</strong>&nbsp; &nbsp;
+      Data collected via Google Forms &nbsp;·&nbsp; Cleaned &amp; visualised in Microsoft Power BI &nbsp;·&nbsp;
+      Survey Period: May – June 2026 &nbsp;·&nbsp; Sample Size: 525 Retail Outlets &nbsp;·&nbsp;
+      Locations: Awka, Onitsha, Nnewi, Umunze
+    </div>
+    <div class="footer-right">
+      <div class="footer-badge">LMTech Capstone Project</div>
+      <div class="footer-badge">Analyst: Kenneth Uju</div>
+      <div class="footer-badge">Tool: Power BI + HTML</div>
+    </div>
+  </footer>
+
+</div><!-- /page -->
+
+<script>
+// ── GLOBAL CHART DEFAULTS ──
+Chart.defaults.font.family = "'DM Sans', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#4A5D6E';
+Chart.defaults.plugins.legend.display = false;
+Chart.defaults.plugins.tooltip.backgroundColor = '#1C2B3A';
+Chart.defaults.plugins.tooltip.titleColor = '#C8DFF0';
+Chart.defaults.plugins.tooltip.bodyColor = '#A8C0D8';
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.cornerRadius = 6;
+
+const BLUE    = '#4A7FA5';
+const SAGE    = '#6EA07A';
+const WARM    = '#C9876A';
+const ROSE    = '#A8708A';
+const SLATE   = '#7A90A8';
+const BLUE_LT = '#8AAEC8';
+const SAGE_LT = '#92BF9E';
+
+// ── 1. BRAND DOMINANCE BY LOCATION ──
+new Chart(document.getElementById('chartBrandLocation'), {
+  type: 'bar',
+  data: {
+    labels: ['Awka', 'Onitsha', 'Nnewi', 'Umunze'],
+    datasets: [
+      {
+        label: "International Breweries",
+        data: [94, 69, 68, 57],
+        backgroundColor: BLUE,
+        borderRadius: 3,
+        borderSkipped: false,
+      },
+      {
+        label: "Nigerian Breweries",
+        data: [54, 38, 40, 28],
+        backgroundColor: SAGE,
+        borderRadius: 3,
+        borderSkipped: false,
+      },
+      {
+        label: "Guinness Nigeria",
+        data: [17, 21, 19, 20],
+        backgroundColor: WARM,
+        borderRadius: 3,
+        borderSkipped: false,
+      },
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: {
+        grid: { display: false },
+        border: { display: false },
+        ticks: { font: { size: 11 } },
+      },
+      y: {
+        grid: { color: '#EDF1F7', lineWidth: 1 },
+        border: { display: false, dash: [4,4] },
+        ticks: { font: { size: 10 }, maxTicksLimit: 5 },
+        title: { display: true, text: 'Number of Outlets', font: { size: 10 }, color: '#8A9BB0' }
+      }
+    }
+  }
+});
+
+// ── 2. MARKET SHARE DONUT ──
+new Chart(document.getElementById('chartMarketShare'), {
+  type: 'doughnut',
+  data: {
+    labels: ["Int'l Breweries", "Nigerian Breweries", "Guinness Nigeria"],
+    datasets: [{
+      data: [54.9, 30.5, 14.7],
+      backgroundColor: [BLUE, SAGE, WARM],
+      borderColor: '#FFFFFF',
+      borderWidth: 3,
+      hoverOffset: 6,
+    }]
+  },
+  options: {
+    responsive: false,
+    cutout: '64%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => ` ${ctx.label}: ${ctx.parsed}%`
+        }
+      }
+    }
+  }
+});
+
+// ── 3. OUTLET TYPE DONUT ──
+new Chart(document.getElementById('chartOutletType'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Bar/Restaurant','Supermarket','Provision Store','Hotel','Mini Mart','Others'],
+    datasets: [{
+      data: [35.8, 23.4, 15.2, 13.5, 6.1, 5.9],
+      backgroundColor: [SAGE, SAGE_LT, '#5E8FA8', ROSE, WARM, '#B0CADE'],
+      borderColor: '#FFFFFF',
+      borderWidth: 3,
+      hoverOffset: 6,
+    }]
+  },
+  options: {
+    responsive: false,
+    cutout: '64%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => ` ${ctx.label}: ${ctx.parsed}%`
+        }
+      }
+    }
+  }
+});
+
+// ── 4. DECLINE CAUSES (horizontal bar) ──
+new Chart(document.getElementById('chartDeclineCauses'), {
+  type: 'bar',
+  data: {
+    labels: ['Economic\nDownturns', 'High\nPrices', 'Low\nDemand', 'More\nCompetition', 'Product\nQuality'],
+    datasets: [{
+      data: [72.8, 40.8, 28.8, 15.8, 3.4],
+      backgroundColor: [
+        WARM, '#D4A07A', '#DDB89A', '#E5CAAA', '#EDD8C2'
+      ],
+      borderRadius: 4,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: { label: (c) => ` ${c.parsed.x}% of outlets` }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: '#EDF1F7' },
+        border: { display: false },
+        ticks: {
+          callback: (v) => v + '%',
+          font: { size: 10 },
+          maxTicksLimit: 6,
+        },
+        max: 85,
+      },
+      y: {
+        grid: { display: false },
+        border: { display: false },
+        ticks: { font: { size: 10.5 } }
+      }
+    }
+  }
+});
+
+// ── 5. PEAK SEASON DONUT ──
+new Chart(document.getElementById('chartSeason'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Christmas/New Year','No Variation','Easter Period','Rainy Season'],
+    datasets: [{
+      data: [85.3, 9.3, 5.0, 0.4],
+      backgroundColor: [BLUE, BLUE_LT, ROSE, '#C8DDE8'],
+      borderColor: '#FFFFFF',
+      borderWidth: 3,
+      hoverOffset: 5,
+    }]
+  },
+  options: {
+    responsive: false,
+    cutout: '60%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: { label: (c) => ` ${c.label}: ${c.parsed}%` }
+      }
+    }
+  }
+});
+
+// ── 6. AVG RATING BY OUTLET ──
+new Chart(document.getElementById('chartRating'), {
+  type: 'bar',
+  data: {
+    labels: ['Hotel','Mini Mart','Bar/Rest.','Others','Supermarket','Provision\nStores'],
+    datasets: [{
+      data: [4.02, 3.94, 3.92, 3.87, 3.85, 3.78],
+      backgroundColor: [SAGE, SAGE_LT, '#5E9EA8', '#8AAEC8', BLUE_LT, SLATE],
+      borderRadius: 4,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: { label: (c) => ` Rating: ${c.parsed.y.toFixed(2)} / 5.0` }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        border: { display: false },
+        ticks: { font: { size: 9.5 } }
+      },
+      y: {
+        grid: { color: '#EDF1F7' },
+        border: { display: false },
+        min: 3.6,
+        max: 4.2,
+        ticks: {
+          font: { size: 10 },
+          callback: (v) => v.toFixed(1),
+          stepSize: 0.1,
+        }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
