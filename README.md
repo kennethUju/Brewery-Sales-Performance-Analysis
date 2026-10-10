@@ -6,8 +6,9 @@
 - Microsoft Excel
 
 ## Project Overview
-This project analysis the sales performance across retail outlets in Anambra State, Nigeria. ( Awka, Onitsha, Nnewi, Umunze).
-It explains trends, the best selling brand, Reasons for sales decline, Key challenges affecting brewery product sale, peak sales seasons.
+Brewery Sales Performance Analysis | Anambra State, Nigeria
+Analyzed brewery sales across retail outlets in Awka, Onitsha, Nnewi, and Umunze to uncover what drives revenue. Identified the best-selling brand, tracked sales trends, pinpointed peak seasons, and diagnosed the causes of sales decline. Evaluated key market challenges and translated the findings into clear, actionable insights for smarter distribution, stocking, and promotion decisions.
+Tools: Power BI, Excel
 
 ## What i learned
 - How to clean messy data using Power Bi
